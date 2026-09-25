@@ -1,0 +1,168 @@
+  # ── SMART_ACTIONS ─────────────────────────────────────────────
+
+  - name: dim_smact
+    layer: beta
+    sub_layer: trusted
+    engine: spark
+    write_mode: overwrite
+    metadata: {domain: smart_actions}
+    spark_config: {additional_configs: {spark.sql.ansi.enabled: "false"}}
+    data_quality: {on_failure: fail, checks: [{type: row_count_min, value: 1}]}
+    transform:
+      sql_file: sql/smart_actions/dim_smact.sql
+      iceberg_properties: {format-version: "3"}
+      sources:
+        - {table: polaris.alpha.crm_nas.crm_plus_actions_todos, alias: source_dim_smact}
+        - {table: polaris.alpha.compass.dim_marketing_client, alias: source_dim_marketing_client}
+
+  - name: dim_smact_tags
+    layer: beta
+    sub_layer: trusted
+    engine: spark
+    write_mode: overwrite
+    metadata: {domain: smart_actions}
+    spark_config: {additional_configs: {spark.sql.ansi.enabled: "false"}}
+    data_quality: {on_failure: fail, checks: [{type: row_count_min, value: 1}]}
+    transform:
+      sql_file: sql/smart_actions/dim_smact_tags.sql
+      iceberg_properties: {format-version: "3"}
+      sources:
+        - {table: polaris.alpha.crm_nas.crm_plus_tag_flux_bronze, alias: source_dim_tag}
+        - {table: polaris.alpha.crm_nas.crm_plus_tag_object_flux_bronze, alias: source_dim_tag_object}
+
+  - name: fact_smact_ptcpt
+    layer: beta
+    sub_layer: trusted
+    engine: spark
+    write_mode: overwrite
+    metadata: {domain: smart_actions}
+    spark_config: {additional_configs: {spark.sql.ansi.enabled: "false"}}
+    data_quality: {on_failure: fail, checks: [{type: row_count_min, value: 1}]}
+    transform:
+      sql_file: sql/smart_actions/fact_smact_ptcpt.sql
+      iceberg_properties: {format-version: "3"}
+      sources:
+        - {table: polaris.alpha.crm_nas.crm_plus_actions_todos_asgn, alias: source_fact_smact_ptcpt}
+        - {table: polaris.alpha.compass.dim_refog_emp, alias: source_dim_refog_employee}
+        - {table: polaris.alpha.compass.dim_ref_emp_his, alias: source_dim_refog_employee_hist}
+
+  - name: dim_smact_tags_agg
+    layer: beta
+    sub_layer: trusted
+    engine: spark
+    write_mode: overwrite
+    metadata: {domain: smart_actions}
+    spark_config: {additional_configs: {spark.sql.ansi.enabled: "false"}}
+    data_quality: {on_failure: fail, checks: [{type: row_count_min, value: 1}]}
+    transform:
+      sql_file: sql/smart_actions/dim_smact_tags_agg.sql
+      iceberg_properties: {format-version: "3"}
+      sources:
+        - {table: polaris.beta.trusted.smart_actions.dim_smact_tags, alias: source_dim_tags}
+
+  # ── OPPORTUNITIES ─────────────────────────────────────────────
+  # aliases inferred — will fail loud at source resolution if wrong
+
+  - name: fact_participants
+    layer: beta
+    sub_layer: trusted
+    engine: spark
+    write_mode: overwrite
+    metadata: {domain: opportunities}
+    spark_config: {additional_configs: {spark.sql.ansi.enabled: "false"}}
+    data_quality: {on_failure: fail, checks: [{type: row_count_min, value: 1}]}
+    transform:
+      sql_file: sql/opportunities/fact_participants.sql
+      iceberg_properties: {format-version: "3"}
+      sources:
+        - {table: polaris.alpha.crm_nas.crm_plus_opty_participants_info, alias: participants}
+        - {table: polaris.alpha.crm_nas.crm_plus_opty_accesslist_info, alias: accesslist}
+
+  - name: fact_opty_actions
+    layer: beta
+    sub_layer: trusted
+    engine: spark
+    write_mode: overwrite
+    metadata: {domain: opportunities}
+    spark_config: {additional_configs: {spark.sql.ansi.enabled: "false"}}
+    data_quality: {on_failure: fail, checks: [{type: row_count_min, value: 1}]}
+    transform:
+      sql_file: sql/opportunities/fact_opty_actions.sql
+      iceberg_properties: {format-version: "3"}
+      sources:
+        - {table: polaris.alpha.crm_nas.crm_plus_actions_todos, alias: actions_todos}
+
+  - name: fact_failure_reasons
+    layer: beta
+    sub_layer: trusted
+    engine: spark
+    write_mode: overwrite
+    metadata: {domain: opportunities}
+    spark_config: {additional_configs: {spark.sql.ansi.enabled: "false"}}
+    data_quality: {on_failure: fail, checks: [{type: row_count_min, value: 1}]}
+    transform:
+      sql_file: sql/opportunities/fact_failure_reasons.sql
+      iceberg_properties: {format-version: "3"}
+      sources:
+        - {table: polaris.alpha.crm_nas.crm_plus_opty_failure_reason_gm, alias: failure_reason_gm}
+
+  - name: fact_participants_agg
+    layer: beta
+    sub_layer: trusted
+    engine: spark
+    write_mode: overwrite
+    metadata: {domain: opportunities}
+    spark_config: {additional_configs: {spark.sql.ansi.enabled: "false"}}
+    data_quality: {on_failure: fail, checks: [{type: row_count_min, value: 1}]}
+    transform:
+      sql_file: sql/opportunities/fact_participants_agg.sql
+      iceberg_properties: {format-version: "3"}
+      sources:
+        - {table: polaris.beta.trusted.opportunities.fact_participants, alias: fact_participants}
+
+  - name: fact_access_participants_agg
+    layer: beta
+    sub_layer: trusted
+    engine: spark
+    write_mode: overwrite
+    metadata: {domain: opportunities}
+    spark_config: {additional_configs: {spark.sql.ansi.enabled: "false"}}
+    data_quality: {on_failure: fail, checks: [{type: row_count_min, value: 1}]}
+    transform:
+      sql_file: sql/opportunities/fact_access_participants_agg.sql
+      iceberg_properties: {format-version: "3"}
+      sources:
+        - {table: polaris.beta.trusted.opportunities.fact_participants, alias: fact_participants}
+
+  - name: fact_country_region_gbl
+    layer: beta
+    sub_layer: trusted
+    engine: spark
+    write_mode: overwrite
+    metadata: {domain: opportunities}
+    spark_config: {additional_configs: {spark.sql.ansi.enabled: "false"}}
+    data_quality: {on_failure: fail, checks: [{type: row_count_min, value: 1}]}
+    transform:
+      sql_file: sql/opportunities/fact_country_region_gbl.sql
+      iceberg_properties: {format-version: "3"}
+      sources:
+        - {table: polaris.beta.trusted.opportunities.fact_participants, alias: fact_participants}
+
+  - name: fact_authors
+    layer: beta
+    sub_layer: trusted
+    engine: spark
+    write_mode: overwrite
+    metadata: {domain: opportunities}
+    spark_config: {additional_configs: {spark.sql.ansi.enabled: "false"}}
+    data_quality: {on_failure: fail, checks: [{type: row_count_min, value: 1}]}
+    transform:
+      sql_file: sql/opportunities/fact_authors.sql
+      iceberg_properties: {format-version: "3"}
+      sources:
+        - {table: polaris.beta.trusted.opportunities.fact_participants, alias: fact_participants}
+
+  # ── BLOCKED: sharepoint/institutional_client_dev ──────────────
+  #
+  # - name: fact_opty              ← opty_flowstr + opty_servicetype + sharepoint
+  # - name: fact_tags              ← beta opportunities.fact_opty
