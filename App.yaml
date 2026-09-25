@@ -1,0 +1,347 @@
+schema_version: "1.0"
+
+options:
+  fail_fast: false
+
+tasks:
+
+  # ── WAVE 1 ── bronze sources only ────────────────────────────────
+
+  - name: fact_meeting
+    layer: beta
+    sub_layer: trusted
+    engine: spark
+    write_mode: overwrite
+    metadata: {domain: crm_plus}
+    spark_config: {additional_configs: {spark.sql.ansi.enabled: "false"}}
+    data_quality: {on_failure: fail, checks: [{type: row_count_min, value: 1}]}
+    transform:
+      sql_file: sql/fact_meeting.sql
+      iceberg_properties: {format-version: "3"}
+      sources:
+        - {table: polaris.alpha.crm_nas.crm_plus_meeting_bronze, alias: fact_meeting}
+
+  - name: fact_event
+    layer: beta
+    sub_layer: trusted
+    engine: spark
+    write_mode: overwrite
+    metadata: {domain: crm_plus}
+    spark_config: {additional_configs: {spark.sql.ansi.enabled: "false"}}
+    data_quality: {on_failure: fail, checks: [{type: row_count_min, value: 1}]}
+    transform:
+      sql_file: sql/fact_event.sql
+      iceberg_properties: {format-version: "3"}
+      sources:
+        - {table: polaris.alpha.crm_nas.crm_plus_event_bronze, alias: fact_event}
+        - {table: polaris.alpha.compass.crm_plus_currency_exchange, alias: currency_exchange}
+        - {table: polaris.alpha.compass.dim_geography, alias: dim_geography}
+        - {table: polaris.alpha.crm_nas.crm_plus_event_cc_budget_bronze, alias: event_cc}
+
+  - name: fact_bnpp_ptcpt
+    layer: beta
+    sub_layer: trusted
+    engine: spark
+    write_mode: overwrite
+    metadata: {domain: crm_plus}
+    spark_config: {additional_configs: {spark.sql.ansi.enabled: "false"}}
+    data_quality: {on_failure: fail, checks: [{type: row_count_min, value: 1}]}
+    transform:
+      sql_file: sql/fact_bnpp_ptcpt.sql
+      iceberg_properties: {format-version: "3"}
+      sources:
+        - {table: polaris.alpha.crm_nas.crm_plus_meeting_bnpp_part_bronze, alias: fact_bnpp_ptcpt}  #?
+
+  - name: fact_client_ptcpt
+    layer: beta
+    sub_layer: trusted
+    engine: spark
+    write_mode: overwrite
+    metadata: {domain: crm_plus}
+    spark_config: {additional_configs: {spark.sql.ansi.enabled: "false"}}
+    data_quality: {on_failure: fail, checks: [{type: row_count_min, value: 1}]}
+    transform:
+      sql_file: sql/fact_client_ptcpt.sql
+      iceberg_properties: {format-version: "3"}
+      sources:
+        - {table: polaris.alpha.crm_nas.crm_plus_meeting_contact_part_bronze, alias: fact_client_ptcpt}  #?
+
+  - name: dim_sub_type
+    layer: beta
+    sub_layer: trusted
+    engine: spark
+    write_mode: overwrite
+    metadata: {domain: crm_plus}
+    spark_config: {additional_configs: {spark.sql.ansi.enabled: "false"}}
+    data_quality: {on_failure: fail, checks: [{type: row_count_min, value: 1}]}
+    transform:
+      sql_file: sql/dim_sub_type.sql
+      iceberg_properties: {format-version: "3"}
+      sources:
+        - {table: polaris.alpha.crm_nas.crm_plus_meeting_sub_type_bronze, alias: dim_sub_type}  #?
+
+  - name: dim_emp_info
+    layer: beta
+    sub_layer: trusted
+    engine: spark
+    write_mode: overwrite
+    metadata: {domain: crm_plus}
+    spark_config: {additional_configs: {spark.sql.ansi.enabled: "false"}}
+    data_quality: {on_failure: fail, checks: [{type: row_count_min, value: 1}]}
+    transform:
+      sql_file: sql/dim_emp_info.sql
+      iceberg_properties: {format-version: "3"}
+      sources:
+        - {table: polaris.alpha.crm_nas.crm_plus_emp_info_bronze, alias: dim_emp_info}  #?
+
+  - name: dim_client_info
+    layer: beta
+    sub_layer: trusted
+    engine: spark
+    write_mode: overwrite
+    metadata: {domain: crm_plus}
+    spark_config: {additional_configs: {spark.sql.ansi.enabled: "false"}}
+    data_quality: {on_failure: fail, checks: [{type: row_count_min, value: 1}]}
+    transform:
+      sql_file: sql/dim_client_info.sql
+      iceberg_properties: {format-version: "3"}
+      sources:
+        - {table: polaris.alpha.crm_nas.crm_plus_client_info_bronze, alias: dim_client_info}  #?
+
+  - name: dim_contact_info
+    layer: beta
+    sub_layer: trusted
+    engine: spark
+    write_mode: overwrite
+    metadata: {domain: crm_plus}
+    spark_config: {additional_configs: {spark.sql.ansi.enabled: "false"}}
+    data_quality: {on_failure: fail, checks: [{type: row_count_min, value: 1}]}
+    transform:
+      sql_file: sql/dim_contact_info.sql
+      iceberg_properties: {format-version: "3"}
+      sources:
+        - {table: polaris.alpha.crm_nas.crm_plus_contact_info_bronze, alias: dim_contact_info}  #?
+
+  - name: dim_tag
+    layer: beta
+    sub_layer: trusted
+    engine: spark
+    write_mode: overwrite
+    metadata: {domain: crm_plus}
+    spark_config: {additional_configs: {spark.sql.ansi.enabled: "false"}}
+    data_quality: {on_failure: fail, checks: [{type: row_count_min, value: 1}]}
+    transform:
+      sql_file: sql/dim_tag.sql
+      iceberg_properties: {format-version: "3"}
+      sources:
+        - {table: polaris.alpha.crm_nas.crm_plus_tag_flux_bronze, alias: dim_tag}  #?
+
+  - name: dim_tag_object
+    layer: beta
+    sub_layer: trusted
+    engine: spark
+    write_mode: overwrite
+    metadata: {domain: crm_plus}
+    spark_config: {additional_configs: {spark.sql.ansi.enabled: "false"}}
+    data_quality: {on_failure: fail, checks: [{type: row_count_min, value: 1}]}
+    transform:
+      sql_file: sql/dim_tag_object.sql
+      iceberg_properties: {format-version: "3"}
+      sources:
+        - {table: polaris.alpha.crm_nas.crm_plus_tag_object_flux_bronze, alias: dim_tag_object}  #?
+
+  - name: dim_sub_event
+    layer: beta
+    sub_layer: trusted
+    engine: spark
+    write_mode: overwrite
+    metadata: {domain: crm_plus}
+    spark_config: {additional_configs: {spark.sql.ansi.enabled: "false"}}
+    data_quality: {on_failure: fail, checks: [{type: row_count_min, value: 1}]}
+    transform:
+      sql_file: sql/dim_sub_event.sql
+      iceberg_properties: {format-version: "3"}
+      sources:
+        - {table: polaris.alpha.crm_nas.crm_plus_subevent_bronze, alias: dim_sub_event}  #?
+
+  - name: fact_sub_event_attendees
+    layer: beta
+    sub_layer: trusted
+    engine: spark
+    write_mode: overwrite
+    metadata: {domain: crm_plus}
+    spark_config: {additional_configs: {spark.sql.ansi.enabled: "false"}}
+    data_quality: {on_failure: fail, checks: [{type: row_count_min, value: 1}]}
+    transform:
+      sql_file: sql/fact_sub_event_attendees.sql
+      iceberg_properties: {format-version: "3"}
+      sources:
+        - {table: polaris.alpha.crm_nas.crm_plus_event_attendee_bronze, alias: fact_sub_event_attendees}  #?
+
+  - name: dim_contact_coverage
+    layer: beta
+    sub_layer: trusted
+    engine: spark
+    write_mode: overwrite
+    metadata: {domain: crm_plus}
+    spark_config: {additional_configs: {spark.sql.ansi.enabled: "false"}}
+    data_quality: {on_failure: fail, checks: [{type: row_count_min, value: 1}]}
+    transform:
+      sql_file: sql/dim_contact_coverage.sql
+      iceberg_properties: {format-version: "3"}
+      sources:
+        - {table: polaris.alpha.crm_nas.crm_plus_contact_coverage_info_stock_bronze, alias: contact_coverage_info_stock}
+
+  - name: dim_body_notes
+    layer: beta
+    sub_layer: trusted
+    engine: spark
+    write_mode: overwrite
+    metadata: {domain: crm_plus}
+    spark_config: {additional_configs: {spark.sql.ansi.enabled: "false"}}
+    data_quality: {on_failure: fail, checks: [{type: row_count_min, value: 1}]}
+    transform:
+      sql_file: sql/dim_body_notes.sql
+      iceberg_properties: {format-version: "3"}
+      sources:
+        - {table: polaris.alpha.crm_nas.crm_plus_meeting_body_notes_bronze, alias: dim_body_notes}  #?
+
+  - name: dim_key_takeaways
+    layer: beta
+    sub_layer: trusted
+    engine: spark
+    write_mode: overwrite
+    metadata: {domain: crm_plus}
+    spark_config: {additional_configs: {spark.sql.ansi.enabled: "false"}}
+    data_quality: {on_failure: fail, checks: [{type: row_count_min, value: 1}]}
+    transform:
+      sql_file: sql/dim_key_takeaways.sql
+      iceberg_properties: {format-version: "3"}
+      sources:
+        - {table: polaris.alpha.crm_nas.crm_plus_meeting_key_takeaways_bronze, alias: dim_key_takeaways}  #?
+
+  - name: dim_adage_history
+    layer: beta
+    sub_layer: trusted
+    engine: spark
+    write_mode: overwrite
+    metadata: {domain: crm_plus}
+    spark_config: {additional_configs: {spark.sql.ansi.enabled: "false"}}
+    data_quality: {on_failure: fail, checks: [{type: row_count_min, value: 1}]}
+    transform:
+      sql_file: sql/dim_adage_history.sql
+      iceberg_properties: {format-version: "3"}
+      sources:
+        # Nucleus path is bronze/cia/adage_history, but Core alpha filed it under telemetry_db
+        - {table: polaris.alpha.telemetry_db.adage_history, alias: dim_adage_history}
+
+  - name: dim_optimus_sales
+    layer: beta
+    sub_layer: trusted
+    engine: spark
+    write_mode: overwrite
+    metadata: {domain: crm_plus}
+    spark_config: {additional_configs: {spark.sql.ansi.enabled: "false"}}
+    data_quality: {on_failure: fail, checks: [{type: row_count_min, value: 1}]}
+    transform:
+      sql_file: sql/dim_optimus_sales.sql
+      iceberg_properties: {format-version: "3"}
+      sources:
+        - {table: polaris.alpha.cia.sm_employees_adage, alias: sm_employees_adage}
+        - {table: polaris.alpha.cia.sm_teams_adage, alias: sm_teams_adage}
+        - {table: polaris.alpha.compass.dim_geography, alias: dim_geography}
+
+  - name: coverage_fic
+    layer: beta
+    sub_layer: trusted
+    engine: spark
+    write_mode: overwrite
+    metadata: {domain: crm_plus}
+    spark_config: {additional_configs: {spark.sql.ansi.enabled: "false"}}
+    data_quality: {on_failure: fail, checks: [{type: row_count_min, value: 1}]}
+    transform:
+      sql_file: sql/coverage_fic.sql
+      iceberg_properties: {format-version: "3"}
+      sources:
+        - {table: polaris.alpha.crm_nas.crm_client_coverage_bronze, alias: client_coverage}
+        - {table: polaris.alpha.cia.adage, alias: adage}
+        - {table: polaris.alpha.cia.file_perm_user, alias: file_perm_user}
+
+  # ── WAVE 2 ── reads beta ─────────────────────────────────────────
+
+  - name: dim_meeting_tags
+    layer: beta
+    sub_layer: trusted
+    engine: spark
+    write_mode: overwrite
+    metadata: {domain: crm_plus}
+    spark_config: {additional_configs: {spark.sql.ansi.enabled: "false"}}
+    data_quality: {on_failure: fail, checks: [{type: row_count_min, value: 1}]}
+    transform:
+      sql_file: sql/dim_meeting_tags.sql
+      iceberg_properties: {format-version: "3"}
+      sources:
+        - {table: polaris.beta.trusted.crm_plus.dim_tag, alias: dim_tag}
+        - {table: polaris.beta.trusted.crm_plus.dim_tag_object, alias: dim_tag_object}
+
+  - name: dim_contact_tags
+    layer: beta
+    sub_layer: trusted
+    engine: spark
+    write_mode: overwrite
+    metadata: {domain: crm_plus}
+    spark_config: {additional_configs: {spark.sql.ansi.enabled: "false"}}
+    data_quality: {on_failure: fail, checks: [{type: row_count_min, value: 1}]}
+    transform:
+      sql_file: sql/dim_contact_tags.sql
+      iceberg_properties: {format-version: "3"}
+      sources:
+        - {table: polaris.beta.trusted.crm_plus.dim_tag, alias: dim_tag}
+        - {table: polaris.beta.trusted.crm_plus.dim_tag_object, alias: dim_tag_object}
+
+  - name: dim_client_tags
+    layer: beta
+    sub_layer: trusted
+    engine: spark
+    write_mode: overwrite
+    metadata: {domain: crm_plus}
+    spark_config: {additional_configs: {spark.sql.ansi.enabled: "false"}}
+    data_quality: {on_failure: fail, checks: [{type: row_count_min, value: 1}]}
+    transform:
+      sql_file: sql/dim_client_tags.sql
+      iceberg_properties: {format-version: "3"}
+      sources:
+        - {table: polaris.beta.trusted.crm_plus.dim_tag, alias: dim_tag}
+        - {table: polaris.beta.trusted.crm_plus.dim_tag_object, alias: dim_tag_object}
+        - {table: polaris.beta.trusted.crm_plus.dim_client_info, alias: dim_client_info}
+
+  - name: dim_gm_client_priority
+    layer: beta
+    sub_layer: trusted
+    engine: spark
+    write_mode: overwrite
+    metadata: {domain: crm_plus}
+    spark_config: {additional_configs: {spark.sql.ansi.enabled: "false"}}
+    data_quality: {on_failure: fail, checks: [{type: row_count_min, value: 1}]}
+    transform:
+      sql_file: sql/dim_gm_client_priority.sql
+      iceberg_properties: {format-version: "3"}
+      sources:
+        - {table: polaris.beta.trusted.crm_plus.dim_tag, alias: dim_tag}
+        - {table: polaris.beta.trusted.crm_plus.dim_tag_object, alias: dim_tag_object}
+        - {table: polaris.beta.trusted.crm_plus.dim_client_info, alias: dim_client_info}
+
+  - name: dim_contact_audit
+    layer: beta
+    sub_layer: trusted
+    engine: spark
+    write_mode: overwrite
+    metadata: {domain: crm_plus}
+    spark_config: {additional_configs: {spark.sql.ansi.enabled: "false"}}
+    data_quality: {on_failure: fail, checks: [{type: row_count_min, value: 1}]}
+    transform:
+      sql_file: sql/dim_contact_audit.sql
+      iceberg_properties: {format-version: "3"}
+      sources:
+        - {table: polaris.alpha.crm_nas.crm_plus_contact_kdm_audit_bronze, alias: contact_kdm_audit_data}
+        - {table: polaris.beta.trusted.crm_plus.dim_contact_info, alias: dim_contact_info}
